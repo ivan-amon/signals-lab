@@ -28,6 +28,17 @@ def square_wave(t, n: int, A: float = 1.0, T: float = 1.0, tau: float = 0.5):
     return a0 + x
 
 
+def sawtooth_wave(t, n: int, A: float = 1.0, T: float = 1.0):
+
+    w0 = 2 * np.pi / T
+    x = 0
+
+    for k in range(1, n + 1):
+        x += ((-1) ** (k + 1)) * np.sin(k * w0 * t) / k
+
+    return (2 * A / np.pi) * x
+
+
 def main():
     args = parse_args()
     t = np.linspace(0, T_MAX, N_POINTS)
@@ -39,8 +50,8 @@ def main():
         y = square_wave(t, k)
         fig.suptitle("Square Wave, representation with Fourier Series", fontsize=16)
     elif args.saw:
-        print("Sawtooth Wave")
-        return
+        y = sawtooth_wave(t, k)
+        fig.suptitle("Saw Wave, representation with Fourier Series", fontsize=16)
 
     ax.grid()
     ax.set_xlim(0, T_MAX)
@@ -52,7 +63,10 @@ def main():
     k_slider = Slider(slider_ax, "k", 1, 100, valinit=k, valstep=1, initcolor="none")
 
     def update(val):
-        line.set_ydata(square_wave(t, int(val)))
+        if args.square:
+            line.set_ydata(square_wave(t, int(val)))
+        elif args.saw:
+            line.set_ydata(sawtooth_wave(t, int(val)))
         fig.canvas.draw_idle()
 
     k_slider.on_changed(update)
